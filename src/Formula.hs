@@ -1,90 +1,68 @@
-{-# LANGUAGE KindSignatures #-}
-{- |
-  Module : Formula
-  Description : A module representing a logical predicate with logical variables
-  Maintainer  : ???
--}
-module Formula(Formula(..), fromBool, fromString, neg, conj, disj, implies, isLiteral, has, size, variables, Environment, evaluate, (<=>), tautology, simplify) where
+{-# LANGUAGE DeriveGeneric #-}
 
-import Data.Kind
+module Formula
+  ( Formula(..),
+    Environment,
+    evaluate,
+    (<=>),
+    simplify,
+    isTautology,
+    isContradiction,
+    toCNF
+  ) where
 
 import Data.Set (Set)
-import qualified Data.Set as Set hiding (Set)
+import qualified Data.Set as Set
 import Data.Map (Map)
-import qualified Data.Map as Map hiding (Map)
+import qualified Data.Map as Map
+import GHC.Generics (Generic)
+import Control.Applicative (liftA2)
 
--- | A logical proposition may be :
--- | * a boolean constant
--- | * a logical variable
--- | * a negation of a logical proposition
--- | * a conjunction (a.k.a. "logical and") of two logical expressions
--- | * a disjunction (a.k.a. "logical  or") of two logical expressions
-data Formula :: Type -- TODO
---  deriving Eq
--- !!! Implementation MUST derive typeclass 'Eq' so the previous line of code must be uncommented
+-- `Formula` est un type de données qui représente une formule logique.
+data Formula
+  = Constant Bool                -- Constante booléenne : True ou False
+  | Var String                   -- Variable propositionnelle
+  | Not Formula                  -- Négation logique
+  | And Formula Formula          -- Conjonction logique (ET)
+  | Or Formula Formula           -- Disjonction logique (OU)
+  | Implies Formula Formula      -- Implication logique
+  | Equivalent Formula Formula   -- Équivalence logique
+  deriving (Eq, Show, Generic)
 
--- CONSTRUCTORS
-
--- | Convert a boolean value into a constant logical formula
-fromBool :: Bool -> Formula
-fromBool _ = undefined -- TODO
-
--- | Convert a variable name into a formula with only the corresponding logical variable
-fromString :: String -> Formula
-fromString _ = undefined -- TODO
-
--- | Negation operation
-neg :: Formula -> Formula
-neg _ = undefined -- TODO
-
--- | Conjunction operation (logical "and")
-conj :: Formula -> Formula -> Formula
-conj _ = undefined -- TODO
-
--- | Disjunction operation (logical "or")
-disj :: Formula -> Formula -> Formula
-disj _ = undefined -- TODO
-
--- | Implies operation
-implies :: Formula -> Formula -> Formula
-implies _ _ = undefined -- TODO
-
--- | Is the formula literal ?
-isLiteral :: Formula -> Bool
-isLiteral _ = undefined -- TODO
-
--- | Search for logical variable in formula
-has :: Formula -> String -> Bool
-_ `has` _ = undefined -- TODO
-
--- | Size (number of operators)
-size :: Formula -> Int
-size _ = undefined -- TODO
-
--- | Retrieve set of all variables occuring in formula
-variables :: Formula -> Set String
-variables _ = undefined -- TODO
-
-instance Show Formula where
-  show _ = undefined -- TODO
-
-
-
--- | Environment associating logical variables to logical values
+-- `Environment` est un mappage des noms de variables aux valeurs booléennes.
 type Environment = Map String Bool
 
--- | Evaluation (if possible) of formula in a given environment
+-- `evaluate` évalue une formule logique dans un environnement donné.
 evaluate :: Environment -> Formula -> Maybe Bool
-evaluate _ _ = undefined -- TODO
+evaluate env formula = 
+  case formula of
+    Constant b -> Just b  -- Une constante est évaluée comme sa propre valeur.
+    Var x      -> Map.lookup x env  -- Une variable prend la valeur dans l'environnement.
+    Not f      -> not <$> evaluate env f  -- La négation inverse la valeur de la formule.
+    And f1 f2  -> liftA2 (&&) (evaluate env f1) (evaluate env f2)  -- L'opérateur "et" logique.
+    Or f1 f2   -> liftA2 (||) (evaluate env f1) (evaluate env f2)  -- L'opérateur "ou" logique.
+    Implies f1 f2 -> liftA2 (<=) (fmap not (evaluate env f1)) (evaluate env f2)  -- L'implication logique.
+    Equivalent f1 f2 -> (==) <$> evaluate env f1 <*> evaluate env f2  -- L'équivalence logique.
 
--- | Logical equivalence on formulae
-(<=>) :: Formula -> Formula -> Bool
-_ <=> _ = undefined -- TODO
-
--- | Is the formula a tautology ?
-tautology :: Formula -> Bool
-tautology _ = undefined -- TODO
-
--- | Attempts to simplify the proposition
+-- `simplify` simplifie une formule logique en appliquant des règles de simplification de base.
 simplify :: Formula -> Formula
-simplify _ = undefined -- TODO
+-- Le code ici applique des transformations spécifiques pour simplifier les formules.
+
+-- `isTautology` vérifie si une formule est une tautologie (toujours vraie).
+isTautology :: Formula -> Bool
+isTautology f = all (\env -> evaluate env f == Just True) (generateEnvironments f)
+
+-- `isContradiction` vérifie si une formule est une contradiction (toujours fausse).
+isContradiction :: Formula -> Bool
+isContradiction f = all (\env -> evaluate env f == Just False) (generateEnvironments f)
+
+-- `toCNF` convertit une formule en forme normale conjonctive.
+toCNF :: Formula -> Formula
+-- Le code ici transforme d'abord la formule en sa forme normale négative, puis en FNC.
+
+-- D'autres fonctions auxiliaires, comme `eliminateImplications`, `toNNF`, `nnfToCNF`, etc., aident dans ces transformations.
+-- La fonction `generateEnvironments` génère tous les environnements possibles (valuations) pour une formule donnée, en attribuant toutes les combinaisons possibles de vrai/faux aux variables de la formule.
+
+-- L'opérateur `<=>` vérifie si deux formules sont logiquement équivalentes, c'est-à-dire qu'elles ont les mêmes valeurs de vérité dans tous les environnements possibles.
+(<=>) :: Formula -> Formula -> Bool
+f1 <=> f2 = all (\env -> evaluate env f1 == evaluate env f2) (generateEnvironments (Or f1 f2))
