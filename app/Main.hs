@@ -1,8 +1,8 @@
 module Main where
 
-import NormalForm (fromFormula, toFormula, CNF(..)) -- Importez les fonctions nécessaires de votre module
-import Formula (Formula(..)) -- Supposons que vous avez un type Formula défini quelque part
-import Literal (Literal(..)) -- Supposons que vous avez un type Literal défini quelque part
+import NormalForm (fromFormula, toFormula, CNF(..))
+import Formula (Formula(..))
+import Literal (Literal(..))
 
 -- Fonction principale qui initie l'exécution de votre programme.
 main :: IO ()
