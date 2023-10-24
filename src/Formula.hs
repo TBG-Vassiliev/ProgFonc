@@ -48,11 +48,65 @@ evaluate env formula =
 simplify :: Formula -> Formula
 simplify formula = 
   case formula of
+    -- Élimination de la double négation
     Not (Not f) -> simplify f
-    And f1 f2   -> And (simplify f1) (simplify f2)
-    Or f1 f2    -> Or (simplify f1) (simplify f2)
-    -- autres cas de simplification ici
-    _           -> formula  -- cas par défaut, aucune simplification
+    
+    -- Idempotence
+    And f1 f2 
+        | f1 == f2 -> simplify f1
+    Or f1 f2  
+        | f1 == f2 -> simplify f1
+
+    -- Dominance et identité
+    And (Constant True) f -> simplify f
+    And f (Constant True) -> simplify f
+    And (Constant False) _ -> Constant False
+    And _ (Constant False) -> Constant False
+    Or (Constant True) _ -> Constant True
+    Or _ (Constant True) -> Constant True
+    Or (Constant False) f -> simplify f
+    Or f (Constant False) -> simplify f
+
+    -- Loi de De Morgan
+    Not (And f1 f2) -> simplify $ Or (Not f1) (Not f2)
+    Not (Or f1 f2)  -> simplify $ And (Not f1) (Not f2)
+
+    -- Négation
+    And f1 (Not f2) | f1 == f2 -> Constant False
+    And (Not f1) f2 | f1 == f2 -> Constant False
+    Or f1 (Not f2)  | f1 == f2 -> Constant True
+    Or (Not f1) f2  | f1 == f2 -> Constant True
+
+    -- Simplification conditionnelle
+    Implies f1 f2 -> simplify $ Or (Not f1) f2
+
+    -- Équivalence
+    Equivalent f1 f2 -> simplify $ Or (And f1 f2) (And (Not f1) (Not f2))
+
+    -- Simplification récursive pour les structures composées
+    Not f -> 
+        let simplifiedF = simplify f 
+        in if simplifiedF == f 
+            then Not simplifiedF
+            else simplify (Not simplifiedF)
+    And f1 f2 -> 
+        let 
+            simplifiedF1 = simplify f1
+            simplifiedF2 = simplify f2 
+        in if simplifiedF1 == f1 && simplifiedF2 == f2
+            then And simplifiedF1 simplifiedF2
+            else simplify (And simplifiedF1 simplifiedF2)
+    Or f1 f2 -> 
+        let 
+            simplifiedF1 = simplify f1
+            simplifiedF2 = simplify f2 
+        in if simplifiedF1 == f1 && simplifiedF2 == f2
+            then Or simplifiedF1 simplifiedF2
+            else simplify (Or simplifiedF1 simplifiedF2)
+
+    -- Autres cas
+    _ -> formula  -- cas par défaut, aucune simplification
+
 
 -- `getVars` extrait toutes les variables uniques d'une formule.
 getVars :: Formula -> Set String
