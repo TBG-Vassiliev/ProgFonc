@@ -56,10 +56,12 @@ isLiteral _ = False
 
 toCNF :: Formula -> CNF
 toCNF formula
-  | isCNF formula = fromFormula formula
+  | isCNF formula = case fromFormula formula of
+      Right cnf -> cnf
+      Left errMsg -> error errMsg
   | otherwise = case distributeOrs formula of
-    Right cnf -> cnf
-    Left errMsg -> error errMsg
+      Right cnf -> cnf
+      Left errMsg -> error errMsg
 
 -- Distribuer les disjonctions sur les conjonctions
 distributeOrs :: Formula -> Either String CNF
@@ -74,4 +76,3 @@ distributeOrs (Or f1 f2) = do
 distributeOrs (Not (Var var)) = Right (CNF (Set.singleton (Set.singleton (Negative var))))
 distributeOrs (Var var) = Right (CNF (Set.singleton (Set.singleton (Positive var))))
 distributeOrs _ = Left "La formule donnée n'est pas en CNF et la conversion automatique n'est pas encore supportée."
-
