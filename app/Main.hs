@@ -1,26 +1,32 @@
 module Main where
 
-import NormalForm (fromFormula, toFormula, CNF(..))
-import Formula (Formula(..))
-import Literal (Literal(..))
+import Formula
+import NormalForm
+import Literal
+import qualified Data.Map as Map
 
--- Fonction principale qui initie l'exécution de votre programme.
 main :: IO ()
 main = do
-    putStrLn "Début du programme de conversion de formule."
-    
-    -- Créez une formule de test. Vous pouvez également obtenir ceci de l'utilisateur ou d'une autre source.
-    let testFormula = And [Or [Var "p", Not (Var "q")], Or [Var "q", Not (Var "r")]]
-    
-    -- Montrez la formule originale
-    putStrLn $ "Formule originale : " ++ show testFormula
+    -- Définition de l'environnement
+    let env = Map.fromList [("p", True), ("q", False)]
 
-    -- Convertissez la formule en CNF et imprimez-la
-    case fromFormula testFormula of
-        Right cnf -> putStrLn $ "Formule en CNF : " ++ show (toFormula cnf) -- Convertit la CNF en Formula pour l'impression
-        Left errorMsg -> putStrLn $ "Erreur : " ++ errorMsg
+    -- Création d'une formule
+    let formula1 = And (Or (Var "p") (Var "q")) (Not (Var "q"))
 
-    putStrLn "Fin du programme de conversion de formule."
+    -- Évaluation de la formule
+    let result = evaluate env formula1
+    putStrLn $ "L'évaluation de la formule est : " ++ show result
 
+    -- Simplification de la formule
+    let simplified = simplify formula1
+    putStrLn $ "La formule simplifiée est : " ++ show simplified
 
--- Si vous voulez lancer votre application et voir comment elle fonctionne en situation réelle, vous exécutez main. C'est utile pour voir le comportement de votre programme en production ou pour un usage général.
+    -- Vérification si la formule est une tautologie
+    -- Note: Vous devrez implémenter la logique pour 'isTautology'
+    let tautologyCheck = isTautology formula1
+    putStrLn $ "La formule est-elle une tautologie ? " ++ show tautologyCheck
+
+    -- Conversion d'une formule en CNF
+    -- Note: Vous devrez implémenter la logique pour 'toCNF'
+    let cnf = toCNF formula1
+    putStrLn $ "La forme CNF de la formule est : " ++ show cnf

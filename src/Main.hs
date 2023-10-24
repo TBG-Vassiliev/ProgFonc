@@ -30,6 +30,3 @@ main = do
     -- Note: Vous devrez implémenter la logique pour 'toCNF'
     let cnf = toCNF formula1
     putStrLn $ "La forme CNF de la formule est : " ++ show cnf
-
-    -- ... Ajoutez plus de démos/testes selon vos besoins
-
