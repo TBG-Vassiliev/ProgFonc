@@ -54,6 +54,9 @@ isLiteral (Var _) = True
 isLiteral (Not (Var _)) = True
 isLiteral _ = False
 
+--Début du bloc à modifier------------------------------------------------------------------------
+-- Fait le même job que fromFormula, il faut fusionner les deux 
+
 toCNF :: Formula -> CNF
 toCNF formula
   | isCNF formula = case fromFormula formula of
@@ -76,3 +79,4 @@ distributeOrs (Or f1 f2) = do
 distributeOrs (Not (Var var)) = Right (CNF (Set.singleton (Set.singleton (Negative var))))
 distributeOrs (Var var) = Right (CNF (Set.singleton (Set.singleton (Positive var))))
 distributeOrs _ = Left "La formule donnée n'est pas en CNF et la conversion automatique n'est pas encore supportée."
+-- Fin du bloc à modifier ------------------------------------------------------------------------
