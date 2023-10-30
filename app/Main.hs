@@ -30,3 +30,6 @@ main = do
     -- Note: Vous devrez implémenter la logique pour 'toCNF'
     let cnf = toCNF formula1
     putStrLn $ "La forme CNF de la formule est : " ++ show cnf
+
+-- Charger le main :
+-- ghci src/Literal.hs src/Formula.hs src/NormalForm.hs app/Main.hs
