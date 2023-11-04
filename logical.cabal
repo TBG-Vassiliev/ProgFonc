@@ -22,7 +22,6 @@ library
   exposed-modules:
       Formula
       Literal
-      Main
       NormalForm
   other-modules:
       Paths_logical
