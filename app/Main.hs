@@ -31,5 +31,9 @@ main = do
     let cnf = toCNF formula1
     putStrLn $ "La forme CNF de la formule est : " ++ show cnf
 
--- Charger le main :
+-- Charger le main pour windows :
 -- ghci src/Literal.hs src/Formula.hs src/NormalForm.hs app/Main.hs
+
+-- Charger le main pour Ubuntu :
+-- ghc -i../src Main.hs -o aa && ./aa
+
