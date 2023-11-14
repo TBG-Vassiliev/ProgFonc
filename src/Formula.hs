@@ -73,7 +73,11 @@ has _ _ = False
 
 -- | Size (number of operators)
 size :: Formula -> Int
-size _ = undefined -- TODO
+size (BoolConst _)   = 0
+size (Var _)         = 0
+size (Not formula)   = 1 + size formula
+size (And f1 f2)     = 1 + size f1 + size f2
+size (Or f1 f2)      = 1 + size f1 + size f2
 
 -- | Retrieve set of all variables occuring in formula
 variables :: Formula -> Set String
