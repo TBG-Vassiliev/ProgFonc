@@ -35,11 +35,11 @@ data Formula
 
 -- | Convert a boolean value into a constant logical formula
 fromBool :: Bool -> Formula
-fromBool _ = undefined -- TODO
+fromBool = BoolConst
 
 -- | Convert a variable name into a formula with only the corresponding logical variable
 fromString :: String -> Formula
-fromString _ = undefined -- TODO
+fromString = Var
 
 -- | Negation operation
 neg :: Formula -> Formula
