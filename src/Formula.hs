@@ -13,6 +13,7 @@ import qualified Data.Set as Set hiding (Set)
 import Data.Map (Map)
 import qualified Data.Map as Map hiding (Map)
 import Control.Applicative (liftA2)
+import Control.Monad (sequence)
 
 -- | A logical proposition may be :
 -- | * a boolean constant
@@ -29,7 +30,7 @@ data Formula
   | Not Formula          
   | And Formula Formula       
   | Or Formula Formula        
-  deriving (Eq, Show)
+  deriving Eq
 
 -- CONSTRUCTORS
 
@@ -116,9 +117,19 @@ evaluate env (Or f1 f2) = liftA2 (||) (evaluate env f1) (evaluate env f2)
 (Or f1a f1b) <=> (Or f2a f2b) = (f1a <=> f2a) && (f1b <=> f2b)
 _ <=> _ = False
 
+
 -- | Is the formula a tautology ?
 tautology :: Formula -> Bool
-tautology _ = undefined -- TODO
+tautology formula = checkAllEnvironments (Set.toList $ variables formula)
+  where
+    checkAllEnvironments :: [String] -> Bool
+    checkAllEnvironments [] = True
+    checkAllEnvironments (var:vars) =
+      let envTrue = Map.insert var True Map.empty
+          envFalse = Map.insert var False Map.empty
+      in evaluate envTrue formula == Just True
+         && evaluate envFalse formula == Just True
+         && checkAllEnvironments vars
 
 -- | Attempts to simplify the proposition
 simplify :: Formula -> Formula
