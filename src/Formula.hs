@@ -19,9 +19,17 @@ import qualified Data.Map as Map hiding (Map)
 -- | * a negation of a logical proposition
 -- | * a conjunction (a.k.a. "logical and") of two logical expressions
 -- | * a disjunction (a.k.a. "logical  or") of two logical expressions
-data Formula :: Type -- TODO
+-- data Formula :: Type -- TODO
 --  deriving Eq
 -- !!! Implementation MUST derive typeclass 'Eq' so the previous line of code must be uncommented
+
+data Formula
+  = BoolConst Bool       
+  | Var String         
+  | Not Formula          
+  | And Formula Formula       
+  | Or Formula Formula        
+  deriving (Eq, Show)
 
 -- CONSTRUCTORS
 
