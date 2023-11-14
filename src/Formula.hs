@@ -109,7 +109,12 @@ evaluate env (Or f1 f2) = liftA2 (||) (evaluate env f1) (evaluate env f2)
 
 -- | Logical equivalence on formulae
 (<=>) :: Formula -> Formula -> Bool
-_ <=> _ = undefined -- TODO
+(BoolConst b1) <=> (BoolConst b2) = b1 == b2
+(Var var1) <=> (Var var2) = var1 == var2
+(Not f1) <=> (Not f2) = f1 <=> f2
+(And f1a f1b) <=> (And f2a f2b) = (f1a <=> f2a) && (f1b <=> f2b)
+(Or f1a f1b) <=> (Or f2a f2b) = (f1a <=> f2a) && (f1b <=> f2b)
+_ <=> _ = False
 
 -- | Is the formula a tautology ?
 tautology :: Formula -> Bool
