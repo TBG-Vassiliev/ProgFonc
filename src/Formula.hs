@@ -81,11 +81,19 @@ size (Or f1 f2)      = 1 + size f1 + size f2
 
 -- | Retrieve set of all variables occuring in formula
 variables :: Formula -> Set String
-variables _ = undefined -- TODO
+variables (BoolConst _)   = Set.empty
+variables (Var varName)   = Set.singleton varName
+variables (Not formula)   = variables formula
+variables (And f1 f2)     = Set.union (variables f1) (variables f2)
+variables (Or f1 f2)      = Set.union (variables f1) (variables f2)
+
 
 instance Show Formula where
-  show _ = undefined -- TODO
-
+  show (BoolConst b)   = show b
+  show (Var varName)   = varName
+  show (Not formula)   = "not " ++ show formula
+  show (And f1 f2)     = "(" ++ show f1 ++ " and " ++ show f2 ++ ")"
+  show (Or f1 f2)      = "(" ++ show f1 ++ " or " ++ show f2 ++ ")"
 
 
 -- | Environment associating logical variables to logical values
