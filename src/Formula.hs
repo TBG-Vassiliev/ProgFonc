@@ -59,13 +59,17 @@ implies a b = Or (Not a) b
 
 -- | Is the formula literal ?
 isLiteral :: Formula -> Bool
-isLiteral (Var _)   = True      -- A variable is a literal
+isLiteral (Var _) = True      -- A variable is a literal
 isLiteral (Not (Var _)) = True  -- The negation of a variable is also a literal
-isLiteral _        = False      -- Anything else is not a literal
+isLiteral _ = False      -- Anything else is not a literal
 
 -- | Search for logical variable in formula
 has :: Formula -> String -> Bool
-_ `has` _ = undefined -- TODO
+has (Var varName) targetVar = varName == targetVar
+has (Not formula) targetVar = has formula targetVar
+has (And formula1 formula2) targetVar = has formula1 targetVar || has formula2 targetVar
+has (Or formula1 formula2) targetVar = has formula1 targetVar || has formula2 targetVar
+has _ _ = False
 
 -- | Size (number of operators)
 size :: Formula -> Int
