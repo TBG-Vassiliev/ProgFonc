@@ -43,23 +43,25 @@ fromString = Var
 
 -- | Negation operation
 neg :: Formula -> Formula
-neg _ = undefined -- TODO
+neg = Not
 
 -- | Conjunction operation (logical "and")
 conj :: Formula -> Formula -> Formula
-conj _ = undefined -- TODO
+conj = And
 
 -- | Disjunction operation (logical "or")
 disj :: Formula -> Formula -> Formula
-disj _ = undefined -- TODO
+disj = Or
 
 -- | Implies operation
 implies :: Formula -> Formula -> Formula
-implies _ _ = undefined -- TODO
+implies a b = Or (Not a) b
 
 -- | Is the formula literal ?
 isLiteral :: Formula -> Bool
-isLiteral _ = undefined -- TODO
+isLiteral (Var _)   = True      -- A variable is a literal
+isLiteral (Not (Var _)) = True  -- The negation of a variable is also a literal
+isLiteral _        = False      -- Anything else is not a literal
 
 -- | Search for logical variable in formula
 has :: Formula -> String -> Bool
