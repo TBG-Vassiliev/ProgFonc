@@ -13,28 +13,32 @@ import Formula (Formula)
 -- | A literal element may be :
 -- | * a boolean constant
 -- | * a logical variable or the negation of it
-data Literal :: Type -- TODO
+data Literal = PosVar String | NegVar String deriving (Eq, Ord)
 --  deriving (Eq, Ord)
 -- !!! Implementation MUST derive typeclasses 'Eq' and 'Ord' so the previous line of code must be uncommented
 
-instance Show Literal where
-  show _ = undefined
+instance Show
+ Literal where
+  show (PosVar var) = var
+  show (NegVar var) = "not " ++ var
 
 -- | Convert boolean value to constant literal
 fromBool :: Bool -> Literal
-fromBool _ = undefined -- TODO
+fromBool True  = PosVar "True"
+fromBool False = PosVar "False"
 
 -- | Convert logical variable to a positive literal
 fromPositive :: String -> Literal
-fromPositive _ = undefined -- TODO
+fromPositive var = PosVar var
 
 -- | Convert logical variable to a positive literal
 fromNegative :: String -> Literal
-fromNegative _ = undefined -- TODO
+fromNegative var = NegVar var
 
 -- | Negation operation
 neg :: Literal -> Literal
-neg _ = undefined -- TODO
+neg (PosVar var) = NegVar var
+neg (NegVar var) = PosVar var
 
 -- | Convert a literal to the corresponding logical formula
 toFormula :: Literal -> Formula
