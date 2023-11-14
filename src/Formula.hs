@@ -133,21 +133,18 @@ tautology formula = checkAllEnvironments (Set.toList $ variables formula)
 
 -- | Attempts to simplify the proposition
 simplify :: Formula -> Formula
-simplify :: Formula -> Formula
-simplify (Not (Not f))       = simplify f                -- Double negation elimination
-simplify (And f (BoolConst True))  = simplify f            -- True AND f  => f
-simplify (And (BoolConst True) f)  = simplify f            -- f AND True  => f
-simplify (And _ (BoolConst False)) = BoolConst False       -- False AND f => False
-simplify (And (BoolConst False) _) = BoolConst False       -- f AND False => False
-simplify (Or _ (BoolConst True))   = BoolConst True        -- True OR f   => True
-simplify (Or (BoolConst True) _)   = BoolConst True        -- f OR True   => True
-simplify (Or f (BoolConst False))  = simplify f            -- False OR f  => f
-simplify (Or (BoolConst False) f)  = simplify f            -- f OR False  => f
-simplify (Not (BoolConst b))      = BoolConst (not b)      -- NOT True/False => False/True
-simplify (And (BoolConst False) _) = BoolConst False       -- False AND f => False
-simplify (And _ (BoolConst False)) = BoolConst False       -- f AND False => False
-simplify (Or (BoolConst True) _)   = BoolConst True        -- True OR f   => True
-simplify (Or _ (BoolConst True))   = BoolConst True        -- f OR True   => True
+simplify (Not (Not f))            = simplify f             -- Double negation elimination
+simplify (And (BoolConst False) _) = BoolConst False        -- False AND f => False
+simplify (And f (BoolConst True))  = simplify f             -- True AND f  => f
+simplify (And (BoolConst True) f)  = simplify f             -- f AND True  => f
+simplify (And _ (BoolConst False)) = BoolConst False        -- False AND f => False
+simplify (Or (BoolConst True) _)   = BoolConst True         -- True OR f   => True
+simplify (Or _ (BoolConst True))   = BoolConst True         -- f OR True   => True
+simplify (Or f (BoolConst False))  = simplify f             -- False OR f  => f
+simplify (Or (BoolConst False) f)  = simplify f             -- f OR False  => f
+simplify (Not (BoolConst b))       = BoolConst (not b)      -- NOT True/False => False/True
+simplify (And _ (BoolConst False)) = BoolConst False        -- False AND f => False
+simplify (Or (BoolConst True) _)   = BoolConst True         -- True OR f   => True
 simplify (And f (Not g))           = simplify (Not (Or (Not f) (Not g)))  -- De Morgan's Law
 simplify (And (Not f) g)           = simplify (Not (Or (Not f) (Not g)))  -- De Morgan's Law
 simplify (Or f (Not g))            = simplify (Not (And (Not f) (Not g))) -- De Morgan's Law
@@ -156,5 +153,6 @@ simplify (Not (And f g))           = simplify (Or (Not f) (Not g))        -- De 
 simplify (Not (Or f g))            = simplify (And (Not f) (Not g))       -- De Morgan's Law
 simplify (And f1 f2)               = And (simplify f1) (simplify f2)     -- Recursive simplification
 simplify (Or f1 f2)                = Or (simplify f1) (simplify f2)      -- Recursive simplification
-simplify f                         = f  -- For variables and constants, no further simplification
+simplify f                         = f
+
 
