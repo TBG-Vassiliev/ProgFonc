@@ -12,6 +12,7 @@ import Data.Set (Set)
 import qualified Data.Set as Set hiding (Set)
 import Data.Map (Map)
 import qualified Data.Map as Map hiding (Map)
+import Control.Applicative (liftA2)
 
 -- | A logical proposition may be :
 -- | * a boolean constant
@@ -19,7 +20,6 @@ import qualified Data.Map as Map hiding (Map)
 -- | * a negation of a logical proposition
 -- | * a conjunction (a.k.a. "logical and") of two logical expressions
 -- | * a disjunction (a.k.a. "logical  or") of two logical expressions
--- data Formula :: Type -- TODO
 --  deriving Eq
 -- !!! Implementation MUST derive typeclass 'Eq' so the previous line of code must be uncommented
 
@@ -101,7 +101,11 @@ type Environment = Map String Bool
 
 -- | Evaluation (if possible) of formula in a given environment
 evaluate :: Environment -> Formula -> Maybe Bool
-evaluate _ _ = undefined -- TODO
+evaluate env (BoolConst b) = Just b
+evaluate env (Var varName) = Map.lookup varName env
+evaluate env (Not formula) = not <$> evaluate env formula
+evaluate env (And f1 f2) = liftA2 (&&) (evaluate env f1) (evaluate env f2)
+evaluate env (Or f1 f2) = liftA2 (||) (evaluate env f1) (evaluate env f2)
 
 -- | Logical equivalence on formulae
 (<=>) :: Formula -> Formula -> Bool
