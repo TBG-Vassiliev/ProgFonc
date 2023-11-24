@@ -9,6 +9,8 @@ module Literal(Literal(..), fromBool, fromPositive, fromNegative, neg, toFormula
 import Data.Kind
 
 import Formula (Formula)
+import qualified Formula as F
+
 
 -- | A literal element may be :
 -- | * a boolean constant
@@ -42,5 +44,5 @@ neg (NegVar var) = PosVar var
 
 -- | Convert a literal to the corresponding logical formula
 toFormula :: Literal -> Formula
-toFormula (PosVar var) = Var var
-toFormula (NegVar var) = Not (Var var)
+toFormula (PosVar var) = F.Var var
+toFormula (NegVar var) = F.Not (F.Var var)
