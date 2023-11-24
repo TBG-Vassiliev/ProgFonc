@@ -11,13 +11,15 @@ import Formula (Formula)
 import Literal (Literal)
 
 -- | A conjunctive normal form
-newtype CNF = CNF (Set (Set Literal))
+newtype CNF = CNF (Set (Set Literal)) deriving(Eq)
 --  deriving Eq
 -- !!! Once type 'Literal' derive typeclass 'Eq', implementation MUST derive typeclass 'Eq' so the previous line of code will have to be uncommented.
 -- NB: 'newtype' is an optimized declaration of 'data' for types with a sole constructor with a sole parameter (i.e. encapsulation).
 
 instance Show CNF where
-  show _ = undefined -- TODO
+  show (CNF clauses) = unwords (map showClause (Set.toList clauses))
+    where
+      showClause literals = "(" ++ unwords (map show (Set.toList literals)) ++ ")"
 
 -- | Size (number of literals)
 size :: CNF -> Int
@@ -42,5 +44,15 @@ fromFormula formula = CNF (Set.singleton (toLiterals formula))
 
 -- | Apply ROBINSON's rule on clauses
 robinson :: CNF -> CNF
-robinson _ = undefined -- TODO
+robinson _ = robinson (CNF clauses) = CNF (Set.fromList (map simplifyClause (resolvePairs (Set.toList clauses))))
+  where
+    resolvePairs :: [Set Literal] -> [Set Literal]
+    resolvePairs [] = []
+    resolvePairs (c:cs) = c : resolvePairs (map (resolvePair c) cs ++ cs)
+
+    resolvePair :: Set Literal -> Set Literal -> Set Literal
+    resolvePair c1 c2 = Set.union (Set.difference c1 (Set.map neg c2)) (Set.difference c2 (Set.map neg c1))
+
+    simplifyClause :: Set Literal -> Set Literal
+    simplifyClause = Set.filter (\l -> not (Set.member (neg l) clause))
 
