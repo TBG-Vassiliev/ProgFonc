@@ -21,15 +21,24 @@ instance Show CNF where
 
 -- | Size (number of literals)
 size :: CNF -> Int
-size _ = undefined -- TODO
+size (CNF clauses) = sum (map Set.size (Set.toList clauses))
 
 -- | Convert normal form to logical formula
 toFormula :: CNF -> Formula
-toFormula _ = undefined -- TODO
+toFormula (CNF clauses) = foldr conj (fromBool True) (map toDisjunction (Set.toList clauses))
+  where
+    toDisjunction :: Set Literal -> Formula
+    toDisjunction literals = foldr disj (fromBool False) (Set.toList literals)
 
 -- | Convert logical formula to normal form
 fromFormula :: Formula -> CNF
-fromFormula _ = undefined -- TODO
+fromFormula formula = CNF (Set.singleton (toLiterals formula))
+  where
+    toLiterals :: Formula -> Set Literal
+    toLiterals (Var var)     = Set.singleton (PosVar var)
+    toLiterals (Not (Var var)) = Set.singleton (NegVar var)
+    toLiterals (Or f1 f2)    = Set.union (toLiterals f1) (toLiterals f2)
+    toLiterals _             = Set.empty
 
 -- | Apply ROBINSON's rule on clauses
 robinson :: CNF -> CNF
