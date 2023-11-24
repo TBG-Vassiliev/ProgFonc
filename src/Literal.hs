@@ -42,4 +42,5 @@ neg (NegVar var) = PosVar var
 
 -- | Convert a literal to the corresponding logical formula
 toFormula :: Literal -> Formula
-toFormula _ = undefined -- TODO
+toFormula (PosVar var) = Var var
+toFormula (NegVar var) = Not (Var var)
