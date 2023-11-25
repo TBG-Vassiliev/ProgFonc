@@ -7,7 +7,8 @@
 module Literal(Literal(..), fromBool, fromPositive, fromNegative, neg, toFormula) where
 
 import Data.Kind
-
+import Data.Set (Set)
+import qualified Data.Set as Set
 import Formula (Formula)
 import qualified Formula as F
 

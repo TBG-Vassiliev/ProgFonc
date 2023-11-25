@@ -6,9 +6,12 @@
 module NormalForm(CNF(..), size, toFormula, fromFormula, robinson) where
 
 import Data.Set (Set)
+import qualified Data.Set as Set
 
-import Formula (Formula)
+import Formula (Formula) 
+import qualified Formula as F
 import Literal (Literal)
+import qualified Literal as L
 
 -- | A conjunctive normal form
 newtype CNF = CNF (Set (Set Literal)) deriving(Eq)
@@ -27,32 +30,32 @@ size (CNF clauses) = sum (map Set.size (Set.toList clauses))
 
 -- | Convert normal form to logical formula
 toFormula :: CNF -> Formula
-toFormula (CNF clauses) = foldr conj (fromBool True) (map toDisjunction (Set.toList clauses))
+toFormula (CNF clauses) = foldr F.conj (F.fromBool True) (map toDisjunction (Set.toList clauses))
   where
     toDisjunction :: Set Literal -> Formula
-    toDisjunction literals = foldr disj (fromBool False) (Set.toList literals)
+    toDisjunction literals = foldr F.disj (F.fromBool False) (map L.toFormula (Set.toList literals))
 
 -- | Convert logical formula to normal form
 fromFormula :: Formula -> CNF
 fromFormula formula = CNF (Set.singleton (toLiterals formula))
   where
     toLiterals :: Formula -> Set Literal
-    toLiterals (Var var)     = Set.singleton (PosVar var)
-    toLiterals (Not (Var var)) = Set.singleton (NegVar var)
-    toLiterals (Or f1 f2)    = Set.union (toLiterals f1) (toLiterals f2)
+    toLiterals (F.Var var)     = Set.singleton (L.PosVar var)
+    toLiterals (F.Not (F.Var var)) = Set.singleton (L.NegVar var)
+    toLiterals (F.Or f1 f2)    = Set.union (toLiterals f1) (toLiterals f2)
     toLiterals _             = Set.empty
 
 -- | Apply ROBINSON's rule on clauses
 robinson :: CNF -> CNF
-robinson _ = robinson (CNF clauses) = CNF (Set.fromList (map simplifyClause (resolvePairs (Set.toList clauses))))
+robinson (CNF clauses) = CNF (Set.fromList (map simplifyClause (resolvePairs (Set.toList clauses))))
   where
     resolvePairs :: [Set Literal] -> [Set Literal]
     resolvePairs [] = []
     resolvePairs (c:cs) = c : resolvePairs (map (resolvePair c) cs ++ cs)
 
     resolvePair :: Set Literal -> Set Literal -> Set Literal
-    resolvePair c1 c2 = Set.union (Set.difference c1 (Set.map neg c2)) (Set.difference c2 (Set.map neg c1))
+    resolvePair c1 c2 = Set.union (Set.difference c1 (Set.map L.neg c2)) (Set.difference c2 (Set.map L.neg c1))
 
     simplifyClause :: Set Literal -> Set Literal
-    simplifyClause = Set.filter (\l -> not (Set.member (neg l) clause))
+    simplifyClause clause = Set.filter (\l -> not (Set.member (L.neg l) clause)) clause
 

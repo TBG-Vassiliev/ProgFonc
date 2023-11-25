@@ -70,7 +70,7 @@ has (Var varName) targetVar = varName == targetVar
 has (Not formula) targetVar = has formula targetVar
 has (And formula1 formula2) targetVar = has formula1 targetVar || has formula2 targetVar
 has (Or formula1 formula2) targetVar = has formula1 targetVar || has formula2 targetVar
-has _ _ = False
+has _ _ = False  
 
 -- | Size (number of operators)
 size :: Formula -> Int
