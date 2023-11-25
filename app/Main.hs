@@ -7,11 +7,7 @@ import qualified Literal as L
 import NormalForm
 import qualified NormalForm as NF
 
-
-main :: IO ()
-main = 
-
-    complexFormula :: Formula
+complexFormula :: Formula
 complexFormula =
   let
     a = Var "A"
@@ -29,4 +25,9 @@ complexFormula =
         (And e (Or f (Not g)))
       )
     
-    putStrLn F.tautology(complexFormula)
+
+
+main :: IO ()
+main = do
+    print complexFormula
+    print (F.tautology(complexFormula))
