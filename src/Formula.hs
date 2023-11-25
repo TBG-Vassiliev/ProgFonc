@@ -13,7 +13,6 @@ import qualified Data.Set as Set hiding (Set)
 import Data.Map (Map)
 import qualified Data.Map as Map hiding (Map)
 import Control.Applicative (liftA2)
-import Control.Monad (sequence)
 
 -- | A logical proposition may be :
 -- | * a boolean constant
