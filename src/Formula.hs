@@ -119,16 +119,26 @@ _ <=> _ = False
 
 -- | Is the formula a tautology ?
 tautology :: Formula -> Bool
-tautology formula = checkAllEnvironments (Set.toList $ variables formula)
+tautology formula = checkAllEnvironments (enumerateTruthValues $ collectVariables formula)
   where
-    checkAllEnvironments :: [String] -> Bool
-    checkAllEnvironments [] = True
-    checkAllEnvironments (var:vars) =
-      let envTrue = Map.insert var True Map.empty
-          envFalse = Map.insert var False Map.empty
-      in evaluate envTrue formula == Just True
-         && evaluate envFalse formula == Just True
-         && checkAllEnvironments vars
+    -- Fonction pour collecter toutes les variables présentes dans la formule
+    collectVariables :: Formula -> Set String
+    collectVariables (Var var) = Set.singleton var      --si la formule n'a qu'une seule variable, l'ensemble set contiendra 1 seul élément
+    collectVariables (Not f) = collectVariables f       --si c'est une négation, on récupère la partie f
+    collectVariables (And f1 f2) = Set.union (collectVariables f1) (collectVariables f2)    --on collecte les 2 variables et les notes comme union
+    collectVariables (Or f1 f2) = Set.union (collectVariables f1) (collectVariables f2)     --on collecte les 2 variables et les notes comme disjonction
+    collectVariables (BoolConst _) = Set.empty          -- si la formule est une constante booléenne, on ne collecte rien
+
+    -- Fonction pour énumérer toutes les combinaisons de valeurs de vérité pour les variables
+    enumerateTruthValues :: Set String -> [Environment]   --un environnement est comme une map : avec des littéraux et leur valeur booléenne
+    enumerateTruthValues variables = map (Map.fromList . zip (Set.toList variables)) truthValues --associe caque variable à sa valeur booléenne et en crée une liste
+      where
+        truthValues = sequence $ replicate (Set.size variables) [True, False] --replicate crée une liste [True,False] pour chaque variable et sequence génère toutes les combinaisons possibles
+
+    -- Fonction pour vérifier si la formule est vraie pour toutes les combinaisons d'environnements
+    checkAllEnvironments :: [Environment] -> Bool
+    checkAllEnvironments envs = all (\env -> evaluate env formula == Just True) envs
+
 
 -- | Attempts to simplify the proposition
 simplify :: Formula -> Formula
@@ -136,17 +146,16 @@ simplify (Not (Not f))            = simplify f             -- Double negation el
 simplify (And (BoolConst False) _) = BoolConst False        -- False AND f => False
 simplify (And f (BoolConst True))  = simplify f             -- True AND f  => f
 simplify (And (BoolConst True) f)  = simplify f             -- f AND True  => f
+simplify (And x (Not y)) | x == y = BoolConst False        -- x et non x => Faux
+simplify (Or f (Not f')) | f == f' = BoolConst True         -- f ou non f => Vrai
 simplify (Or _ (BoolConst True))   = BoolConst True         -- f OR True   => True
 simplify (Or f (BoolConst False))  = simplify f             -- False OR f  => f
 simplify (Or (BoolConst False) f)  = simplify f             -- f OR False  => f
 simplify (Not (BoolConst b))       = BoolConst (not b)      -- NOT True/False => False/True
-simplify (And f (Not g))           = simplify (Not (Or (Not f) (Not g)))  -- De Morgan's Law
-simplify (And (Not f) g)           = simplify (Not (Or (Not f) (Not g)))  -- De Morgan's Law
-simplify (Or f (Not g))            = simplify (Not (And (Not f) (Not g))) -- De Morgan's Law
-simplify (Or (Not f) g)            = simplify (Not (And (Not f) (Not g))) -- De Morgan's Law
 simplify (Not (And f g))           = simplify (Or (Not f) (Not g))        -- De Morgan's Law
 simplify (Not (Or f g))            = simplify (And (Not f) (Not g))       -- De Morgan's Law
 simplify (And f1 f2)               = And (simplify f1) (simplify f2)     -- Recursive simplification
 simplify (Or f1 f2)                = Or (simplify f1) (simplify f2)      -- Recursive simplification
 simplify f                         = f
+
 
