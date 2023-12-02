@@ -4,19 +4,10 @@ import qualified Literal as Lit
 import qualified Data.Set as Set
 
 
--- Obtenir une formule fourni par l'utilisateur, non vérifiée par le programme
-getFormula :: IO Formula
-getFormula = do
-    putStrLn "Veuillez entrer une formule logique :"
-    formuleString <- getLine
-    let formule = fromString formuleString
-    return formule
-
-
 main :: IO ()
 main = do
-    -- Lire l'entrée de l'utilisateur
-    formula <- getFormula
+    -- Entrer la formule
+    let formula = Or (Var "A") (Not (Var "A")) -- A ∨ ¬A
 
     -- Affichage des formules
     putStrLn $ "Formule : " ++ show formula
@@ -45,4 +36,4 @@ main = do
 -- Executer le fichier clean.exe
 
 -- Pour compiler
--- ghc -o haskell -i/home/cytech/Desktop/ProjetHaskell/src/ Main.hs
+-- ghc -o logical Main.hs
