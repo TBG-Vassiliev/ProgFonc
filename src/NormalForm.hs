@@ -42,8 +42,9 @@ fromFormula formula = CNF (Set.singleton (toLiterals formula))
     toLiterals :: Formula -> Set Literal
     toLiterals (F.Var var)     = Set.singleton (L.PosVar var)
     toLiterals (F.Not (F.Var var)) = Set.singleton (L.NegVar var)
-    toLiterals (F.Or f1 f2)    = Set.union (toLiterals f1) (toLiterals f2)
-    toLiterals _             = Set.empty
+    toLiterals (F.Or f1 f2)    = Set.union (toLiterals f1) (toLiterals f2)  
+    -- toLiterals (F.And f1 f2) = Set.fromList [ Set.fromList (Set.toList l1 ++ Set.toList l2) | l1 <- toLiterals f1, l2 <- toLiterals f2 ]
+    toLiterals _ = Set.empty
 
 -- | Apply ROBINSON's rule on clauses
 robinson :: CNF -> CNF
