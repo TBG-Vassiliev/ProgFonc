@@ -30,7 +30,7 @@ size (CNF clauses) = sum (map Set.size (Set.toList clauses))
 
 -- | Convert normal form to logical formula
 toFormula :: CNF -> Formula
-toFormula (CNF clauses) = foldr F.And (F.fromBool True) (map toDisjunction (Set.toList clauses))
+toFormula (CNF clauses) = F.simplify(foldr F.And (F.fromBool True) (map toDisjunction (Set.toList clauses)))
   where
     toDisjunction :: Set Literal -> Formula
     toDisjunction literals = foldr F.Or (F.fromBool False) (map L.toFormula (Set.toList literals))
