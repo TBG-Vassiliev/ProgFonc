@@ -109,12 +109,43 @@ evaluate env (Or f1 f2) = liftA2 (||) (evaluate env f1) (evaluate env f2)
 
 -- | Logical equivalence on formulae
 (<=>) :: Formula -> Formula -> Bool
-(BoolConst b1) <=> (BoolConst b2) = b1 == b2
-(Var var1) <=> (Var var2) = var1 == var2
-(Not f1) <=> (Not f2) = f1 <=> f2
-(And f1a f1b) <=> (And f2a f2b) = (f1a <=> f2a) && (f1b <=> f2b)
-(Or f1a f1b) <=> (Or f2a f2b) = (f1a <=> f2a) && (f1b <=> f2b)
-_ <=> _ = False
+(<=>) :: Formula -> Formula -> Bool
+(<=>) formula1 formula2 =
+  let
+    -- Fonction pour extraire les variables d'une formule
+    extractVariables :: Formula -> Set String
+    extractVariables (Var var) = Set.singleton var
+    extractVariables (Not f) = extractVariables f
+    extractVariables (And f1 f2) = Set.union (extractVariables f1) (extractVariables f2)
+    extractVariables (Or f1 f2) = Set.union (extractVariables f1) (extractVariables f2)
+    extractVariables (BoolConst _) = Set.empty
+
+    -- Fonction pour générer tous les environnements possibles pour un ensemble de variables
+    generateEnvironments :: Set String -> [Map String Bool]
+    generateEnvironments variables = map (Map.fromList . zip (Set.toList variables)) truthValues
+      where
+        truthValues = sequence $ replicate (Set.size variables) [True, False]
+
+    -- Fonction pour évaluer une formule dans un environnement
+    evaluateFormula :: Map String Bool -> Formula -> Bool
+    evaluateFormula env f = case evaluate env f of
+      Just result -> result
+      Nothing -> error "Unable to evaluate the formula in the given environment"
+
+    -- Variables des deux formules
+    vars1 = extractVariables formula1
+    vars2 = extractVariables formula2
+
+    -- Vérifier si les ensembles de variables sont égaux
+    sameVariables = vars1 == vars2
+
+    -- Générer tous les environnements possibles pour les variables
+    environments = generateEnvironments vars1
+
+    -- Vérifier si les formules ont le même résultat pour chaque environnement
+    sameResults = all (\env -> evaluateFormula env formula1 == evaluateFormula env formula2) environments
+  in
+    sameVariables && sameResults
 
 
 -- | Is the formula a tautology ?
