@@ -110,7 +110,7 @@ robinson (CNF clauses) = CNF (Set.fromList (resolvePairs (Set.toList clauses)))
                              True -> Just (l, L.neg l)
                              False -> acc) Nothing c1
 
-    -- | Check if the resolution is simple
+    -- Check if the resolution is simple
     isSimple :: Literal -> Literal -> Bool
     isSimple (L.PosVar x) u = not (Set.member x (freeVariables u))
     isSimple (L.NegVar y) u = not (Set.member y (freeVariables u))

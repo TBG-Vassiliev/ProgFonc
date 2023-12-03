@@ -1,4 +1,4 @@
 
 main :: IO ()
 main = do
-  putStrLn ""
+  putStrLn "Zone de test"
