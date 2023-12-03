@@ -85,15 +85,40 @@ fromFormula f =
 
 -- | Apply ROBINSON's rule on clauses
 robinson :: CNF -> CNF
-robinson (CNF clauses) = CNF (Set.fromList (map simplifyClause (resolvePairs (Set.toList clauses))))
+robinson (CNF clauses) = CNF (Set.fromList (resolvePairs (Set.toList clauses)))
   where
     resolvePairs :: [Set Literal] -> [Set Literal]
     resolvePairs [] = []
-    resolvePairs (c:cs) = c : resolvePairs (map (resolvePair c) cs ++ cs)
+    resolvePairs (c:cs) = c : resolvePairs (unifyClause c cs ++ cs)
 
-    resolvePair :: Set Literal -> Set Literal -> Set Literal
-    resolvePair c1 c2 = Set.union (Set.difference c1 (Set.map L.neg c2)) (Set.difference c2 (Set.map L.neg c1))
+    freeVariables :: Literal -> Set String
+    freeVariables (L.PosVar x) = Set.singleton x
+    freeVariables (L.NegVar y) = Set.singleton y
 
-    simplifyClause :: Set Literal -> Set Literal
-    simplifyClause clause = Set.filter (\l -> not (Set.member (L.neg l) clause)) clause
+    unifyClause :: Set Literal -> [Set Literal] -> [Set Literal]
+    unifyClause _ [] = []
+    unifyClause c1 (c2:rest) =
+      case findDisagreementPair c1 c2 of
+        Just (w, u) -> if isSimple w u
+                          then applySubstitution (w, u) c1 : unifyClause c1 rest
+                          else unifyClause c1 rest
+        Nothing -> unifyClause c1 rest
 
+    findDisagreementPair :: Set Literal -> Set Literal -> Maybe (Literal, Literal)
+    findDisagreementPair c1 c2 =
+      Set.foldr (\l acc -> case Set.member (L.neg l) c2 of
+                             True -> Just (l, L.neg l)
+                             False -> acc) Nothing c1
+
+    isSimple :: Literal -> Literal -> Bool
+    isSimple w u =
+      case (w, u) of
+        (L.PosVar x, _) -> not (Set.member x (freeVariables u))
+        (L.NegVar y, _) -> not (Set.member y (freeVariables u))
+        (_, L.PosVar z) -> not (Set.member z (freeVariables w))
+        (_, L.NegVar w') -> not (Set.member w' (freeVariables w))
+        _ -> False
+
+
+    applySubstitution :: (Literal, Literal) -> Set Literal -> Set Literal
+    applySubstitution (w, u) = Set.map (\l -> if l == w then u else l)
