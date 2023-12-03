@@ -147,7 +147,7 @@ simplify (And (BoolConst False) _) = BoolConst False        -- False AND f => Fa
 simplify (And f (BoolConst True))  = simplify f             -- True AND f  => f
 simplify (And (BoolConst True) f)  = simplify f             -- f AND True  => f
 simplify (And x (Not y)) | x == y = BoolConst False        -- x et non x => Faux
--- simplify (And x (Or f g)) = (Or (And x f) (And x g))      -- x et (f ou g) => (x et f) ou (x et g)
+-- simplify (And x (Or f g)) = (Or (And x f) (And x g))      -- x et (f ou g) => (x et f) ou (x et g) Role de distribute en fait
 simplify (Or f (Not f')) | f == f' = BoolConst True         -- f ou non f => Vrai
 simplify (Or _ (BoolConst True))   = BoolConst True         -- f OR True   => True
 simplify (Or f (BoolConst False))  = simplify f             -- False OR f  => f

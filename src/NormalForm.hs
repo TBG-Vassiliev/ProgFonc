@@ -38,7 +38,7 @@ toFormula (CNF clauses) = foldr F.And (F.fromBool True) (map toDisjunction (Set.
 -- | Convert logical formula to normal form
 fromFormula :: Formula -> CNF
 fromFormula f =
-  let negativeDescent :: Formula -> Formula
+  let negativeDescent :: Formula -> Formula -- Simplifier la formule en éliminant les double-négations et en manipulant les négations dans les clauses.
       negativeDescent (F.BoolConst b) = F.fromBool b
       negativeDescent (F.Var v) = F.fromString v
       negativeDescent (F.Not (F.BoolConst b)) = F.BoolConst (not b)
@@ -49,18 +49,18 @@ fromFormula f =
       negativeDescent (F.And f1 f2) = F.And (negativeDescent f1) (negativeDescent f2)
       negativeDescent (F.Or f1 f2) = F.Or (negativeDescent f1) (negativeDescent f2) in
   
-  let jointure :: [[a]] -> [[a]] -> [[a]]
+  let jointure :: [[a]] -> [[a]] -> [[a]] -- Combiner chaque liste de la première liste avec chaque liste de la deuxième liste
       jointure [] ys = ys
       jointure (x:xs) ys = map (x ++) ys ++ jointure xs ys in
 
-  let distribute :: CNF -> CNF -> CNF
+  let distribute :: CNF -> CNF -> CNF -- Distribution des conjonctions sur les disjonctions dans la conversion en CNF
       distribute (CNF set1) (CNF set2) =
         let mat1 = Set.toList $ Set.map Set.toList set1 in
         let mat2 = Set.toList $ Set.map Set.toList set2 in
           CNF $ Set.fromList $ map Set.fromList $ jointure mat1 mat2 in
 
 
-  let fromFormula' :: Formula -> CNF
+  let fromFormula' :: Formula -> CNF -- Effectuer la conversion réelle en CNF (traite les différents cas)
       fromFormula' f' = case f' of
 
         F.BoolConst True -> CNF Set.empty
