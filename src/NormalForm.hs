@@ -110,15 +110,10 @@ robinson (CNF clauses) = CNF (Set.fromList (resolvePairs (Set.toList clauses)))
                              True -> Just (l, L.neg l)
                              False -> acc) Nothing c1
 
+    -- | Check if the resolution is simple
     isSimple :: Literal -> Literal -> Bool
-    isSimple w u =
-      case (w, u) of
-        (L.PosVar x, _) -> not (Set.member x (freeVariables u))
-        (L.NegVar y, _) -> not (Set.member y (freeVariables u))
-        (_, L.PosVar z) -> not (Set.member z (freeVariables w))
-        (_, L.NegVar w') -> not (Set.member w' (freeVariables w))
-        _ -> False
-
+    isSimple (L.PosVar x) u = not (Set.member x (freeVariables u))
+    isSimple (L.NegVar y) u = not (Set.member y (freeVariables u))
 
     applySubstitution :: (Literal, Literal) -> Set Literal -> Set Literal
     applySubstitution (w, u) = Set.map (\l -> if l == w then u else l)

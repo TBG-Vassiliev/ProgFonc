@@ -28,6 +28,10 @@ main = do
     let isTautology = tautology formula
     putStrLn $ "La formule entrée est-elle une tautologie ? " ++ show isTautology
 
+    -- Application de la règle de Robinson
+    let robinsonApplied = NF.robinson cnf
+    putStrLn $ "CNF après application de la règle de Robinson: " ++ show robinsonApplied
+
     -- Créer quelques formules pour vérifier si elles sont équivalentes : (<=>)
     let formula1 = Or (And (Var "A") (Var "B")) (Var "C")
     let formula2 = And (Or (Var "A") (Var "C")) (Or (Var "B") (Var "C"))
@@ -35,14 +39,10 @@ main = do
     putStrLn $ "Formula 2: " ++ show formula2
     let result = (<=>) formula1 formula2
     putStrLn $ "Les formules sont équivalentes ? " ++ show result
-
-    -- -- Application de la règle de Robinson
-    let robinsonApplied = NF.robinson cnf
-    putStrLn $ "CNF après application de la règle de Robinson: " ++ show robinsonApplied
   
 
 -- Pour supprimer les fichier de complations à la fin dans src :
 -- Executer le fichier clean.exe
 
 -- Pour compiler
--- ghc -o logical Main.hs
+-- ghc src/Formula.hs src/Literal.hs src/NormalForm.hs app/Main.hs -o logical
