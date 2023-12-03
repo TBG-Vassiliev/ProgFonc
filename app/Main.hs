@@ -7,7 +7,8 @@ import qualified Data.Set as Set
 main :: IO ()
 main = do
     -- Entrer la formule
-    let formula = Or (And (Var "A") (Var "B")) (And (Not (Var "C")) (Or (Var "A") (Var "B"))) -- (A∧B)∨(¬C∧(A∨B))
+    let formula = (Or (And (Var "A") (Or (Var "B") (Var "C"))) (Var "D"))
+    -- let formula = Or (And (Var "A") (Var "B")) (And (Not (Var "C")) (Or (Var "A") (Var "B"))) -- (A∧B)∨(¬C∧(A∨B))
 
     -- Affichage des formules
     putStrLn $ "Formule : " ++ show formula
@@ -26,6 +27,14 @@ main = do
     -- -- Vérification de tautologie
     let isTautology = tautology formula
     putStrLn $ "La formule entrée est-elle une tautologie ? " ++ show isTautology
+
+    -- Créer quelques formules pour vérifier si elles sont équivalentes : (<=>)
+    let formula1 = Or (And (Var "A") (Var "B")) (Var "C")
+    let formula2 = And (Or (Var "A") (Var "C")) (Or (Var "B") (Var "C"))
+    putStrLn $ "Formula 1: " ++ show formula1
+    putStrLn $ "Formula 2: " ++ show formula2
+    let result = (<=>) formula1 formula2
+    putStrLn $ "Les formules sont équivalentes ? " ++ show result
 
     -- -- Application de la règle de Robinson
     let robinsonApplied = NF.robinson cnf
