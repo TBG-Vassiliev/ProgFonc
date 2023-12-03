@@ -109,7 +109,6 @@ evaluate env (Or f1 f2) = liftA2 (||) (evaluate env f1) (evaluate env f2)
 
 -- | Logical equivalence on formulae
 (<=>) :: Formula -> Formula -> Bool
-(<=>) :: Formula -> Formula -> Bool
 (<=>) formula1 formula2 =
   let
     -- Fonction pour extraire les variables d'une formule
