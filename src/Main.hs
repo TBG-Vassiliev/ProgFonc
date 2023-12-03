@@ -28,6 +28,14 @@ main = do
     let isTautology = tautology formula
     putStrLn $ "La formule entrée est-elle une tautologie ? " ++ show isTautology
 
+    -- Créer quelques formules pour vérifier si elles sont équivalentes : (<=>)
+    let formula1 = Or (And (Var "A") (Var "B")) (Var "C")
+    let formula2 = And (Or (Var "A") (Var "C")) (Or (Var "B") (Var "C"))
+    putStrLn $ "Formula 1: " ++ show formula1
+    putStrLn $ "Formula 2: " ++ show formula2
+    let result = (<=>) formula1 formula2
+    putStrLn $ "Les formules sont équivalentes ? " ++ show result
+
     -- -- Application de la règle de Robinson
     let robinsonApplied = NF.robinson cnf
     putStrLn $ "CNF après application de la règle de Robinson: " ++ show robinsonApplied
