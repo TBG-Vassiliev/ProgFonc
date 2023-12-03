@@ -7,7 +7,8 @@ import qualified Data.Set as Set
 main :: IO ()
 main = do
     -- Entrer la formule
-    let formula = Or (And (Var "A") (Var "B")) (And (Not (Var "C")) (Or (Var "A") (Var "B"))) -- (A∧B)∨(¬C∧(A∨B))
+    let formula = (Or (And (Var "A") (Or (Var "B") (Var "C"))) (Var "D"))
+    -- let formula = Or (And (Var "A") (Var "B")) (And (Not (Var "C")) (Or (Var "A") (Var "B"))) -- (A∧B)∨(¬C∧(A∨B))
 
     -- Affichage des formules
     putStrLn $ "Formule : " ++ show formula
